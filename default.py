@@ -15,9 +15,10 @@ from UI_kit import poll
 import test_class as tes
 import discord_func as func
 import text
+import env_text as env
 
-TOKEN = 'MTAyMDIxODg3MzcwMzgzMzYwMA.GBnidN.tn3lmz0jgi2X6OjTOmSRgEeY9LWpIpy9j8pOcA' # TOKENを貼り付け
-Guild_id = 1020214039562965052 #Guild_id を貼り付け
+TOKEN = env.TOKEN # TOKENを貼り付け
+Guild_id = env.Guild_id #Guild_id を貼り付け
 
 class bot(discord.Client):
     def __init__(self):
