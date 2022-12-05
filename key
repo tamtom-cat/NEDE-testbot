@@ -1,0 +1,8 @@
+import discord
+from discord import app_commands
+import discord_func as func
+
+class key_Pannel(discord.ui.View):
+    def __init__(self, timeout: float | None = None):
+        super().__init__(timeout=timeout)
+        self.is_open: bool = False

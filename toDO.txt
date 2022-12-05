@@ -1,0 +1,90 @@
+To do 
+
+TOKENをファイルから読み込もう！
+ファイル分割の方法を学ぼう！(mainファイルと機能ごとのサブファイルに分けよう！)
+Viewでボタン(ボタンクラスをつくってView=でsendmessageに突っ込もう！)を作ろう！
+pollコマンドを完成させよう！
+予測変換をつっこめ！
+便利にしろ！
+
+メモ
+
+コマンド認識→内容確認とボタンの表示→押下で分岐  →　OKならpollメッセージの表示
+                                         →　cancelなら終了
+
+設計
+mainファイル
+    commandデコレータ：コマンドの実装
+    poll_maker関数：async関数, コマンドの詳細登録
+        unify_arg：引数をまとめる
+        poll=confirm_button(message, title, arg_choice, arg_int):confirmクラスのインスタンスを作成
+        await　interaction.response.send_message("内容確認のメッセージ", ephemeral=True, embed=poll.make_poll_embed, view=poll)
+
+UI_kitファイル
+    confirm_buttonクラス(discord.ui.view)
+        __init__関数(self, arg_str, arg_int)：self, arg_str, arg_intを引数に
+            super().__init__(timeout=None)：timeoutをNoneに設定
+        
+        ui.buttonデコレータ：OKボタンの設置
+            OK_button_callback関数：async関数
+                disable_button関数
+                await interaction.response.send_message(enbed=self.make_poll_embed(self), ephemeral=True))
+        
+        ui.buttonデコレータ：NOボタンの設置
+            Cancel_button_callback関数：async関数
+                disable_button関数
+                await interaction.response.send_message("作成中の投票を削除しました", ephemeral=True)
+        
+        make_poll_embed関数：投票内容を表示するembedを作成
+            embed=discord.Embed(title=title,
+                                color=discord.color.purple,
+                                description="message" 
+            )
+
+    
+
+timeファイル
+
+discord_funcファイル
+    unify_arg関数：得た引数をarg_str, arg_intにまとめる    
+    get_author_info関数：authorの情報を取得する
+        
+
+
+
+
+
+コマンド引数の仕様(タイトル, メッセージ, 期限, 票数, (ロール), 選択肢)
+タイトルの仕様 -> str
+・必須の引数
+・表示はboldで行う
+
+メッセージの仕様 -> str
+・投票をポストする際のテキスト、〜をお願いします...的な内容の場所
+・option引数
+    -defaultではなし
+
+期限設定の仕様 -> int
+・s, m, h, d の４変数で受け取る(maxは７day?) 
+・option引数
+    -変数が未入力のときは/endpollを使って終了する設定にする
+    -変数が一つ以上のとき、未設定の変数は０扱い→d, h, m, s合計の時間後に勝手に閉じて集計を表示する
+
+票数の仕様 -> int
+・一人が何個まで投票できるか決める
+・option引数
+    -defaultは1
+    -選択肢の数を超えるときは、選択肢の数に同期する→buttonが複数回押下できるなら、この処理は消す
+
+選択肢の仕様 -> str
+・選択肢は10個を上限にする
+・選択肢は２つ目までを必須にする　それ以降はoption
+
+ロールの仕様：できたらやる
+・投票権を特定ロールのみに付与
+・option引数
+    -defaultはeveryone
+
+
+
+embed=poll.make_poll_embed,
