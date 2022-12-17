@@ -34,17 +34,6 @@ class poll(discord.ui.View):
         )
 
         return preview_embed
-    
-    @discord.ui.button(label="OK", style=discord.ButtonStyle.green)
-    async def OK_button_callback(self, interaction:discord.Interaction, button:discord.ui.Button):#全然わからん！動くからヨシ！
-        mes="投票を開始しました！"
-        await interaction.response.edit_message(content=mes, embed=None, view=None)#時間(30sくらい)で消えるようにする
-        await interaction.channel.send(content=None, embed=self.make_preview_embed())#ここを投票メッセージに変える
-
-    @discord.ui.button(label="Cancel", style=discord.ButtonStyle.red)
-    async def Cancel_button_callback(self, interaction:discord.Interaction, button:discord.ui.Button):
-        mes="作成中の投票を削除しました"
-        await interaction.response.edit_message(content=mes, embed=None, view=None)
 
 #ここから下　新しい設計を描く
 class make_view(discord.ui.View):
@@ -92,6 +81,7 @@ class make_button(discord.ui.Button):
 class make_modal(discord.ui.Modal):
     def __init__(self, Modal_title, args):
         super().__init__(title=Modal_title)
+
 
 
 """    

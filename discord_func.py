@@ -22,6 +22,39 @@ def get_avatar_url(member):
         avatar_url = member.avatar.replace(format="png").url
         return avatar_url
 
+class embed_option():
+    def __init__(self, field_arg = None, author = None, footer = None):
+        self.fields = self.make_fields(field_arg)
+        self.author = self.set_author()
+        self.footer = self.set_footer()
+    
+    def make_fields(self, field_arg):
+        pass
+
+def make_embed(
+    title: str, description: str | None = None,
+    color: discord.Color = discord.Color.purple(),
+    embed_arg: embed_option | None = None
+    ):
+
+    embed=discord.Embed(
+        title=title,
+        color=color,
+        description=description
+    )
+
+    if embed_arg != None:
+        if embed_arg.author != None:
+            embed.set_author(name=embed_arg.author.name, icon_url=embed_arg.author.avatar_url)
+
+        if embed_arg.fields != None:
+            for info in embed_arg.fields:
+                embed.add_field(name=info.name, value=info.value, inline=info.inline)
+        
+        if embed_arg.footer != None:
+            embed.set_footer(text="", icon_url="")
+    
+
 class Modal_info():
     def __init__(self):
         self.labels = text.Modal_label
