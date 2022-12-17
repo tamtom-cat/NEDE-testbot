@@ -32,26 +32,26 @@ class embed_option():
         pass
 
 def make_embed(
-    title: str, description: str | None = None,
+    title: str| None = None, description: str | None = None,
     color: discord.Color = discord.Color.purple(),
-    embed_arg: embed_option | None = None
+    embed_op: embed_option | None = None
     ):
 
     embed=discord.Embed(
-        title=title,
-        color=color,
-        description=description
+        title=lambda x: title if title != None else '\u0000',
+        description=lambda x: description if description != None else '\u0000',
+        color=color
     )
 
-    if embed_arg != None:
-        if embed_arg.author != None:
-            embed.set_author(name=embed_arg.author.name, icon_url=embed_arg.author.avatar_url)
+    if embed_op != None:
+        if embed_op.author != None:
+            embed.set_author(name=embed_op.author.name, icon_url=embed_op.author.avatar_url)
 
-        if embed_arg.fields != None:
-            for info in embed_arg.fields:
+        if embed_op.fields != None:
+            for info in embed_op.fields:
                 embed.add_field(name=info.name, value=info.value, inline=info.inline)
         
-        if embed_arg.footer != None:
+        if embed_op.footer != None:
             embed.set_footer(text="", icon_url="")
     
 
