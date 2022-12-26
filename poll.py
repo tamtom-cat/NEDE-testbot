@@ -10,8 +10,11 @@ from discord import app_commands
 import discord_func as func
 
 class poll():
-    def __init__():
-        pass
+    def __init__(self, title: str = "投票", message: str | None = None, choices: str | None = None, arg_limit: None = None):
+        self.title = title
+        self.message = message
+        self.choices = choices
+        self.arg_limit = arg_limit
 
     def send_Modal():
         pass
