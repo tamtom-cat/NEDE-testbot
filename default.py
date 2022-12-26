@@ -44,7 +44,7 @@ async def self(interaction: discord.Interaction, title: str):
 async def self(interaction: discord.Interaction, title: str):
     await interaction.response.send_message(embed=func.make_embed(interaction, title = title))
 
-@tree.command(name = "qoll", description = "テストコマンド", guild = discord.Object(id = Guild_id))
+@tree.command(name = "qoll", description = "テストコマンド1", guild = discord.Object(id = Guild_id))
 async def test(interaction: discord.Interaction, setting: bool=None):
     poll_author_info=interaction.user
     bot_info=interaction.guild.me #そもそも初めから引数として持て！
