@@ -15,7 +15,7 @@ from UI_kit import poll
 import test_class as tes
 import discord_func as func
 import text
-import env_text as env
+#import env_text as env
 
 TOKEN = env.TOKEN # TOKENを貼り付け
 Guild_id = env.Guild_id #Guild_id を貼り付け
@@ -40,6 +40,10 @@ tree = app_commands.CommandTree(boted)
 async def self(interaction: discord.Interaction, title: str):
     await interaction.response.send_message("")
 
+@tree.command(name = "t", description = "description", guild = discord.Object(id = Guild_id))
+async def self(interaction: discord.Interaction, title: str):
+    await interaction.response.send_message(embed=func.make_embed(interaction, title = title))
+
 @tree.command(name = "qoll", description = "テストコマンド", guild = discord.Object(id = Guild_id))
 async def test(interaction: discord.Interaction, setting: bool=None):
     poll_author_info=interaction.user
@@ -55,16 +59,6 @@ async def poll_maker(
     choice1: str=None, choice2: str=None, choice3: str=None, choice4: str=None, choice5: str=None,
     choice6: str=None, choice7: str=None, choice8: str=None, choice9: str=None, choice10: str=None
 ):
-    arg_limit=[limit_d, limit_h, limit_m, limit_s, limit_stop]
-    choices=[choice1, choice2, choice3, choice4, choice5,choice6, choice7, choice8, choice9, choice10]
-    poll_author_info=func.user_info(interaction.user)
-    bot_info=func.user_info(interaction.guild.me)
-    poll=poll(bot_info, poll_author_info, title, message, choices, arg_limit)
-
-    await interaction.response.send_message(
-        text.confirm_mes, embed=poll.make_preview_embed(),view=poll,
-        ephemeral=True
-    )
     """投票を行うコマンド
 
     Parameters
@@ -78,6 +72,14 @@ async def poll_maker(
         setting: bool
             詳細設定をする場合は1を入力してね！
     """
+    arg_limit=[limit_d, limit_h, limit_m, limit_s, limit_stop]
+    choices=[choice1, choice2, choice3, choice4, choice5,choice6, choice7, choice8, choice9, choice10]
+    poll=poll(title, message, choices, arg_limit)
+
+    await interaction.response.send_message(
+        text.confirm_mes, embed=poll.make_preview_embed(),view=poll,
+        ephemeral=True
+    )
 
 boted.run(TOKEN)
 
