@@ -14,7 +14,7 @@ from discord import app_commands
 import test_class as tes
 import discord_func as func
 import text
-#import env_text as env
+import env_text as env
 
 TOKEN = env.TOKEN # TOKENを貼り付け
 Guild_id = env.Guild_id #Guild_id を貼り付け
