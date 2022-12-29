@@ -11,7 +11,6 @@ import time
 import discord
 from discord import app_commands
 
-from UI_kit import poll
 import test_class as tes
 import discord_func as func
 import text
@@ -54,32 +53,16 @@ async def test(interaction: discord.Interaction, setting: bool=None):
 
 @tree.command(name = "poll", description = "投票コマンド", guild = discord.Object(id = Guild_id))
 async def poll_maker(
-    interaction: discord.Interaction, title: str, message: str,
-    limit_d: int=None, limit_h: int=None,limit_m: int=None, limit_s: int=None, limit_stop: int=None,
-    choice1: str=None, choice2: str=None, choice3: str=None, choice4: str=None, choice5: str=None,
-    choice6: str=None, choice7: str=None, choice8: str=None, choice9: str=None, choice10: str=None
+    interaction: discord.Interaction,
+    setting: bool = 0
 ):
-    """投票を行うコマンド
-
-    Parameters
-        -----------
-        title: str
-            投票タイトル(質問内容)を入力してね！
-        message: str
-            細かい説明(詳細や補足など)を入力してね!
-        choice: str
-            選択肢を入力してね！
-        setting: bool
-            詳細設定をする場合は1を入力してね！
-    """
-    arg_limit=[limit_d, limit_h, limit_m, limit_s, limit_stop]
-    choices=[choice1, choice2, choice3, choice4, choice5,choice6, choice7, choice8, choice9, choice10]
-    poll=poll(title, message, choices, arg_limit)
-
+    poll=poll()
+"""
     await interaction.response.send_message(
         text.confirm_mes, embed=poll.make_preview_embed(),view=poll,
         ephemeral=True
     )
+"""
 
 boted.run(TOKEN)
 

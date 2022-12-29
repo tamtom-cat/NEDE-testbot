@@ -2,8 +2,37 @@ import discord_func as func
 from dataclasses import dataclass
 import discord
 
+@dataclass
+class TextData:
+    #textdataの属性を追加する
+    """
+    Attributes
+    ------------
+    label: str
+        Display labels for users.
+    value: Optional[Union[str, int]]
+        The value of this label.
+    """
+    label: str
+    value: str | int | None
+
 class make_embed(discord.Embed):
     """
+    Parameters
+    -----------
+    interaction: discord.Interaction
+        An interaction happens when a user does an action that needs to be notified.
+        Current examples are slash commands and components.
+    fields: Optional[list[TextData]]
+        A "field" is an "embedded" element consisting of a set of "name" and "value",
+        and fields is list of its data.
+        The default is None.
+        Specify this when you want to dynamically add a "field" (from input). 
+        This argument can be specified by an instance of the "TextData" class.
+        When "field" is added dynamically, the "inline" attribute is automatically set to True;
+        if you wish to change the "inline" attribute, use the "add_field" method.
+        If you want to add a field statically (by code), use the "add_field" method.
+
     kwarg Parameters
     -----------
     title: Optional[:class:`str`]
@@ -33,12 +62,12 @@ class make_embed(discord.Embed):
     def __init__(
         self,
         interaction: discord.Interaction,
-        fields: list[str, str, bool] | None = None,
+        fields: list[TextData] | None = None, #ここはTextdata　dataclassをとれるようにする
         **kwarg
         ):
 
         self._set_default(interaction)
-        self._set_fields()
+        self._set_fields(fields)
 
         super().__init__(**kwarg)
     
@@ -51,22 +80,10 @@ class make_embed(discord.Embed):
             icon_url = func.get_avatar_url(interaction.user) if interaction is not None else None
         )
     
-    def _set_fields(self, fields = None):
-
+    def _set_fields(self, fields):
         if fields != None:
             for field in fields:
-                super().add_field(name=field.name, value=field.value, inline=field.inline)
-
-
-@dataclass
-class TextData:
-    """
-    Attributes
-    ------------
-    label: str
-        Display labels for users.
-    value: Optional[Union[str, int]]
-        The value of this label.
-    """
-    label: str
-    value: str | int | None
+                if field.value == None:
+                    super().add_field(name = field.label, value = field.value)
+                else:
+                    super().add_field(name = field.label, value = field.value)

@@ -61,6 +61,19 @@ class add_view(discord.ui.View):
 
 class make_select(discord.ui.Select):
     """
+    parameter
+    ------------
+    choices: list[discord.SelectOption]
+        Represents a select menu's option. 
+
+    max: int
+
+    min: int
+
+    is_onece: bool
+        Whether the option can be reselected.
+        The default is False.
+
     kwarg Parameters
     ------------
     custom_id: :class:`str`
@@ -77,9 +90,9 @@ class make_select(discord.ui.Select):
     """
     def __init__(
         self,
+        choices: list[discord.SelectOption],
         max: int = 1,
         min: int = 1,
-        choices: list[discord.SelectOption] = None,
         is_once: bool = False,
         **kwarg
         ):
