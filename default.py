@@ -58,6 +58,7 @@ async def poll_maker(
 ):
     poll=poll()
 """
+    ここはあとで消す
     await interaction.response.send_message(
         text.confirm_mes, embed=poll.make_preview_embed(),view=poll,
         ephemeral=True
