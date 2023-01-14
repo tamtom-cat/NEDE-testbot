@@ -12,9 +12,12 @@ class TextData:
         Display labels for users.
     value: Optional[Union[str, int]]
         The value of this label.
+        The defaut is None.
     """
     label: str
-    value: str | int | None
+    value: str | int | None = None
+
+
 
 class make_embed(discord.Embed):
     """
@@ -84,6 +87,6 @@ class make_embed(discord.Embed):
         if fields != None:
             for field in fields:
                 if field.value == None:
-                    super().add_field(name = field.label, value = field.value)
+                    super().add_field(name = field.label, value = '\u0000')
                 else:
                     super().add_field(name = field.label, value = field.value)

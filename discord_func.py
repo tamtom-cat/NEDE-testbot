@@ -6,7 +6,8 @@ Created on Sun Oct 30 22:56:16 2022
 @author: unitom
 """
 import discord
-import text
+import UI_kit as UI
+import asyncio
 from discord import app_commands
 from datetime import datetime, timedelta, timezone
 
@@ -23,15 +24,20 @@ def get_avatar_url(member) -> str:
         avatar_url = member.avatar.replace(format="png").url
         return avatar_url
 
+def add_interaction_log(view: UI.add_view, item: UI.make_button | UI.make_select, interaction: discord.Interaction) -> None:
+    view.last_interaction = interaction
+    view.last_item = item
+
+async def wait_callback(view: UI.add_view):
+    while(view.last_interaction == None):
+        await asyncio.sleep(1)
+
 def make_fields(name: list[str], value: list[str], inline: bool = True) -> list:
     pass
 
-class Modal_info():
-    def __init__(self):
-        self.labels = text.Modal_label
-        self.styles = text.Modal_style
-        self.requireds = text.Modal_req
-        self.placeholders = text.Modal_ph
+def set_TextData_from_Modal(interaction: discord.Interaction, Modal: UI.make_modal):
+    pass
+
 
 if __name__ == "__main__":
     print(discord.__version__) 

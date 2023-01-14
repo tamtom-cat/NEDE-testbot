@@ -13,8 +13,11 @@ from discord import app_commands
 
 import test_class as tes
 import discord_func as func
+import discord_class as mycls
 import text
 import env_text as env
+import poll as p
+import UI_kit as UI
 
 TOKEN = env.TOKEN # TOKENを貼り付け
 Guild_id = env.Guild_id #Guild_id を貼り付け
@@ -52,11 +55,21 @@ async def test(interaction: discord.Interaction, setting: bool=None):
     await interaction.response.send_modal(Modal)
 
 @tree.command(name = "poll", description = "投票コマンド", guild = discord.Object(id = Guild_id))
-async def poll_maker(
-    interaction: discord.Interaction,
-    setting: bool = 0
-):
-    poll=poll()
+async def poll_maker(interaction: discord.Interaction):
+    poll = p.poll(interaction)
+    await poll.set_data()
+    await poll.confirm()
+    #ここから    
+    """
+    await Modal.wait()
+    data = Modal.data_dict
+    poll = p.poll(interaction, data)
+    embed = mycls.make_embed(interaction, title = poll.title, description = poll.description, fields = poll.selects)
+    await Modal.Modal_interaction.response.send_message(embed = embed)
+    #ここまで仮実装
+    #pollクラスはModalを継承してon_submitで後の処理を定義
+    """
+
 """
     ここはあとで消す
     await interaction.response.send_message(

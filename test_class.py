@@ -3,7 +3,7 @@ from discord import app_commands
 import discord_func as func
 
 class qoll(discord.ui.View):
-    def __init__(self, timeout=None):
+    async def __init__(self, timeout=None):
         super().__init__(timeout=timeout)
         self.title = None
         self.message = None
