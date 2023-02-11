@@ -6,105 +6,103 @@ Created on Fri Oct 28 16:21:50 2022
 @author: unitom
 """
 import discord
-from discord import app_commands
-import traceback
-import warnings
-import discord_class as mycls
-import discord_func as myfunc
+import wrap.discord_class as mycls
+import wrap.discord_func as myfunc
 
-class add_view(discord.ui.View):
+class make_view(discord.ui.View):
     """
-    __call__ return tuple[interaction, Union[item, items]].
-    Only if the view is stopped and is_edit is True,
-    returns the interaction of the trigger that stopped this view and all child items.
-    else, Returns the interaction and the item that created the interaction.
+    Magic Method 
+    ------------
+    __call__(
+        items: list[discord.ui.Button | discord.ui.Select] | None,
+        is_clear: bool = False
+    ) -> None:
+
+        add or renew the view.
 
     Parameter
     ------------
-
     interaction: discord.Interaction
-        Interaction to what this view responds.
+        Interaction to get the message that this view belongs to.
     items: list[discord.ui.Button | discord.ui.Select]
         .
-    is_edit: bool
-        .
-    is_onece: bool
+    is_editable: bool
         Whether the option can be reselected.
         The default is False.
+    timeout: float | None
+        Timeout in seconds from last interaction with the UI before no longer accepting input.
+        If None then there is no timeout.
     
     Attribute
     ------------
     view_msg: discord.InteractionMessage
         .
-    last_interaction: discord.Interaction | None
-        .
-    last_item: discord.ui.Button | discord.ui.Select | None
-        .
-    items: list[discord.ui.Button | discord.ui.Select]
-        .
     is_edit: bool
         .
     num: int
         .
+    last_interaction: discord.Interaction | None
+        .
+    last_item: discord.ui.Button | discord.ui.Select | None
+        .
+    is_end: bool
+        .
+    items: list[discord.ui.Button | discord.ui.Select]
+        .
+    
 
     """
     def __init__(
         self,
         interaction: discord.Interaction,
-        items: list[discord.ui.Button | discord.ui.Select],
+        items: list[discord.ui.Button | discord.ui.Select] | None,
         is_edit: bool = True,
         timeout: float | None = None
         ):
 
         super().__init__(timeout = timeout)
+        self.is_editable = is_edit
         self.num = 0
-        self.last_interaction = None
-        self.last_item = None
-        self.is_disabled = False
-        self.is_edit = is_edit
-        self.view_msg = interaction.original_response()
-        for item in items:
-            self.num += 1#個数制限とかにつかうかも
-            self.add_item(item)
+        self.last_interaction: discord.Interaction | None = None
+        self.last_item: discord.ui.Button | discord.ui.Select | None = None
+        self.is_end: bool = False
+        if items != None:
+            for item in items:
+                self.num += 1#個数確認とかにつかうかも
+                self.add_item(item)
 
-    def __call__(self):
-        if (self.is_edit and self.is_disabled) == True:
-            return self.last_interaction, self.children
-        else:    
-            return self.last_interaction, self.last_item
+    #add or renew the view
+    def __call__(self, items: list[discord.ui.Button | discord.ui.Select] | None, is_clear: bool = False):
+        #Clear the item if is_clear is true
+        if is_clear == True:
+            self.clear_items()
+        
+        #add item
+        if items != None:
+            for item in items:
+                self.num += 1#個数確認とかにつかうかも
+                self.add_item(item)
     
+    #dissabled the UI of this view
     async def _end_UI(self):
-        self.is_disabled = True
+        self.is_end = True
 
         for child in self.children:
             child.disabled = True
         
-        await self.view_msg.edit(view = self)
-    
-    def get_view_data(self):
-        self.view_dict = {"button":None, "select":None}
-        for child in self.children:
-            if type(child) == make_button:
-                self.view_dict["button"] = child.data_dict
-            elif type(child) == make_select:
-                self.view_dict["select"] = child.data_dict
+        await self.last_interaction.response.edit_message(view = self)
 
     #When the view interaction call    
     async def interaction_check(self, interaction: discord.Interaction) -> bool:
-        self.view_msg = await self.view_msg
+        #set interaction info
+        self.last_interaction = interaction
 
-        #If is_edit is False, disabled all view
-        if self.is_edit == True:
+        #If is_editable is False, disabled all view
+        if self.is_editable == True:
             pass
         else:
             await self._end_UI()
 
-        #If msg is ephemeral, pass the reply msg ←ここいる？
-        try:
-            await self.view_msg.reply("Disabled this UI.")
-        except discord.errors.HTTPException:
-            pass
-        
         return await super().interaction_check(interaction)  
 
 class make_select(discord.ui.Select):
@@ -171,10 +169,11 @@ class make_select(discord.ui.Select):
             super().add_option(**choice)
 
     def _make_data_dict(self, interaction: discord.Interaction):
+        #renew data_dict or set dict
         if interaction.user in self.data_dict:
             self.data_dict[interaction.user] = self.values
         else:
-            self.data_dict.setdefault(interaction, self.values)
+            self.data_dict.setdefault(interaction.user, self.values)
 
     async def callback(self, interaction:discord.Interaction):
         #set data_dict
@@ -183,10 +182,6 @@ class make_select(discord.ui.Select):
         #judge the flag and set config
         if self.is_once == True:
             self.disabled = True
-        
-        #Notify view that interaction has occurred
-        myfunc.add_interaction_log(self.view, self, interaction)
-
 
 class make_button(discord.ui.Button):
     """
@@ -254,16 +249,17 @@ class make_button(discord.ui.Button):
         self.is_public: bool = is_public
         self.data_dict: dict[discord.Member, bool] = {}
     
-    async def callback(self, interaction: discord.Interaction):
-        #self.Button_interaction = interaction
-        print("Callback!")
-
+    def _make_data_dict(self, interaction: discord.Interaction):
         #switch data_dict or set dict
         if interaction.user in self.data_dict:
             self.data_dict[interaction.user] = not self.data_dict[interaction.user]
         else:
-            self.data_dict.setdefault(interaction.user, True)
-        
+            self.data_dict.setdefault(interaction.user, [True])
+
+    async def callback(self, interaction: discord.Interaction):
+        #switch data_dict or set dict
+        self._make_data_dict(interaction)
+     
         #judge the flag and set config
         if self.is_once == True:
             self.disabled = True
@@ -275,10 +271,8 @@ class make_button(discord.ui.Button):
             self.style = discord.ButtonStyle.secondary
         else:
             print("error")#なんかエラーを吐く
-        
-        #Notify view that interaction has occurred
-        myfunc.add_interaction_log(self.view, self, interaction)
     
+    #make confirm button
     @classmethod
     def confirm_buttons(cls):
         Yes = cls(label = "OK", color = discord.ButtonStyle.green, is_once = True)
@@ -324,7 +318,7 @@ class make_modal(discord.ui.Modal):
 
         super().__init__(title = Modal_title, **kwarg)
         self.item_num: int = 0
-        self.data_dict: dict[discord.Member, list[mycls.TextData]] = {}
+        self.data_dict: dict[discord.Member, list[discord.ui.TextInput]] = {}
 
         self._set_TextInput(Modal_items)
     
@@ -337,13 +331,12 @@ class make_modal(discord.ui.Modal):
         data_list = []
 
         for child in self.children:
-            data_list.append(mycls.TextData(child.label, child.value))
+            data_list.append(child)
         self.data_dict.setdefault(interaction.user, data_list)
 
     async def on_submit(self, interaction: discord.Interaction):
-        self.Modal_interaction = interaction
-
         self._make_data_dict(interaction)
+        self.interaction = interaction
     
     @classmethod
     async def select_maker(cls, interaction: discord.Interaction):

@@ -1,20 +1,25 @@
-import discord_func as func
+import wrap.discord_func as myfunc
 from dataclasses import dataclass
 import discord
 
 @dataclass
-class TextData:
+class ui_Data:
     #textdataの属性を追加する
     """
     Attributes
     ------------
+    title: str
+        Title of this data.
+        The defaut is None.
     label: str
         Display labels for users.
+        The defaut is None.
     value: Optional[Union[str, int]]
         The value of this label.
         The defaut is None.
     """
-    label: str
+    title: str | None = None
+    label: str | None = None
     value: str | int | None = None
 
 
@@ -64,8 +69,8 @@ class make_embed(discord.Embed):
     """
     def __init__(
         self,
-        interaction: discord.Interaction,
-        fields: list[TextData] | None = None, #ここはTextdata　dataclassをとれるようにする
+        interaction: discord.Interaction | None = None,
+        fields: list[ui_Data] | None = None, #ここはTextdata　dataclassをとれるようにする
         **kwarg
         ):
 
@@ -75,17 +80,23 @@ class make_embed(discord.Embed):
         super().__init__(**kwarg)
     
     def _set_default(self, interaction):
+        #Color, embedの作成時間(JST)を設定 
         self.colour = discord.Color.purple()
-        self.timestamp = interaction.created_at if interaction is not None else None
-        super().set_author(
-            name = interaction.user.display_name if interaction is not None else None,
-            url = interaction.user.dm_channel.jump_url if interaction.user.dm_channel is not None else None,
-            icon_url = func.get_avatar_url(interaction.user) if interaction is not None else None
-        )
+        self.timestamp = myfunc.get_JST_time()
+
+        #インタラクションの発行者情報(name, icon, dmへのリンク)
+        if interaction != None:
+            super().set_author(
+                name = interaction.user.display_name,
+                url = interaction.user.dm_channel.jump_url if interaction.user.dm_channel is not None else None,
+                icon_url = myfunc.get_avatar_url(interaction.user)
+            )
     
     def _set_fields(self, fields):
+        #fields変数が渡された時、
         if fields != None:
             for field in fields:
+                #valueをもつならその値を設定、持たない時は空白文字を設定
                 if field.value == None:
                     super().add_field(name = field.label, value = '\u0000')
                 else:
